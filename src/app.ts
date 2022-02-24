@@ -1,5 +1,7 @@
 import express from 'express';
 import budgetRoute from './routes/budgetRoute';
+import deductionRoute from './routes/deductionRoute';
+import userRoute from './routes/userRoute';
 import helmet from 'helmet';
 import morgan from 'morgan'
 import path from 'path'
@@ -19,6 +21,8 @@ if(process.env.NODE_ENV === 'development'){
 
 app.use('/api/v1/images', express.static(path.join(__dirname, './images')));
 app.use('/api/v1/budgets', budgetRoute);
+app.use('/api/v1/deductions', deductionRoute);
+app.use('/api/v1/users', userRoute);
 
 const PORT = process.env.PORT;
 
