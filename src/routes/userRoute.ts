@@ -14,10 +14,10 @@ route.post('/register', asyncHandler(async (req: Request, res:Response, next: Ne
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    await pool.query('insert into "User" (username, password, name) values ($1, $2, $3)', [email, hashedPassword, name]);
+    const {rows: [newUser]} = await pool.query('insert into "User" (username, password, name) values ($1, $2, $3) returning username, name, created_on', [email, hashedPassword, name]);
 
     res.status(201).json({
-        token: generateToken(email)
+        token: generateToken(newUser.username)
     })
 }));
 
@@ -32,7 +32,7 @@ route.post('/login', asyncHandler(async (req: Request, res:Response, next: NextF
     if(!checkPassword) throw new Error('invalid credentials');
 
     res.status(201).json({
-        token: generateToken(user.email)
+        token: generateToken(user.username)
     })
 }));
 

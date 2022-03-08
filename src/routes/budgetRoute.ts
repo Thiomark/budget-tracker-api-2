@@ -25,13 +25,13 @@ router.get('/:id', protect, asyncHandler(async (req: Request, res:Response, next
 
 router.post('/', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
     const { username } = (req as any).user;
-    const { budget } = req.body;
+    const { budget, created_on } = req.body;
 
     if(!budget) throw new Error('Provide a budget');
 
     const id = uuidv4();
 
-    const {rows} = await pool.query('INSERT INTO "Budget" (budget, user_id, id) values ($1, $2, $3) returning *', [budget, username, id]);
+    const {rows} = await pool.query('INSERT INTO "Budget" (budget, user_id, id, created_on) values ($1, $2, $3, $4) returning *', [budget, username, id, new Date(created_on).toISOString()]);
     await pool.query('INSERT INTO "BudgetUser" (budget_id, username) values ($1, $2)', [id, username]);
 
     res.json(rows);
