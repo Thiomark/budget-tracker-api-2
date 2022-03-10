@@ -1,4 +1,4 @@
-[
+export default [
     {
         "user_id": "thiomark",
         "id": "c3f5236a-c2aa-4722-a0e1-b99ef59d659d",

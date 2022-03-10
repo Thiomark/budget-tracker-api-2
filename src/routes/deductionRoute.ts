@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 import { protect } from '../middleware/authMiddleware';
 import pool from '../config/index';
 import { v4 as uuidv4 } from 'uuid';
+import {getStorage, ref, deleteObject, listAll, getDownloadURL} from 'firebase/storage';
 const route = express.Router();
 
 // @desc    Fetch deductions by the budget id
@@ -57,6 +58,29 @@ route.post('/:budgetID/:id', protect, asyncHandler(async (req: Request, res:Resp
 
     res.json(deduction);
 }));
+
+route.get('/sss/sss/ss', asyncHandler(async(req: Request, res:Response, next: NextFunction) => {
+    const storage = getStorage();
+    const listRef = ref(storage, 'budgets');
+
+    // Find all the prefixes and items.
+    listAll(listRef)
+        .then((res) => {
+            res.items.forEach((itemRef) => {
+                getDownloadURL(ref(storage, `budgets/${itemRef.name}`))
+                    .then((url) => {
+                        console.log(url)
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                    });
+            });
+        })
+        .catch((error) => {
+            console.log(error)
+        });
+    res.send({yes: 'yes'})
+}))
 
 // @desc    deleting a deductions by the budget-id and deduction-id
 // @route   GET /api/v1/deductions/:budgetID/:id
