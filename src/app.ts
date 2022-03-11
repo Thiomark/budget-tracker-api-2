@@ -2,7 +2,6 @@ import express from 'express';
 import budgetRoute from './routes/budgetRoute';
 import deductionRoute from './routes/deductionRoute';
 import userRoute from './routes/userRoute';
-import oldRoute from './routes/oldRoute';
 import helmet from 'helmet';
 import morgan from 'morgan'
 import path from 'path'
@@ -30,8 +29,6 @@ app.use(cors());
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
-
-app.use('/api/v1', oldRoute)
 
 app.use('/api/v2/images', express.static(path.join(__dirname, './images')));
 app.use('/api/v2/budgets', budgetRoute);
