@@ -46,15 +46,15 @@ route.post('/:id', protect, asyncHandler(async (req: Request, res:Response, next
 route.post('/:budgetID/:id', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
     const {budgetID, id} = req.params;
     const { username } = (req as any).user;
-    const { amount, description, image, tags, created_on } = req.body;
+    const { amount, description, tags, created_on } = req.body;
     
     if(!amount) throw new Error('Provide an amount deducted')
 
     const { rows: [record] } = await pool.query(`select * from "BudgetUser" bu where bu.budget_id = $1 and username = $2`, [budgetID, username]);
     if(!record) throw new Error('You do not have permission to do that');
 
-    const {rows: [deduction]} = await pool.query(`UPDATE "Deduction" SET amount = $1, description = $2, image = $3, tags = $4, created_on = $5 
-                                                    WHERE id = $6 returning *`, [amount, description, image, tags, new Date(created_on).toISOString(), id]);
+    const {rows: [deduction]} = await pool.query(`UPDATE "Deduction" SET amount = $1, description = $2, tags = $3, created_on = $4 
+                                                    WHERE id = $5 returning *`, [amount, description, tags, new Date(created_on).toISOString(), id]);
 
     res.json(deduction);
 }));
