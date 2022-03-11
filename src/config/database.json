@@ -1,9 +1,0 @@
-{
-    "dev": {
-        "driver": "pg",
-        "user": "yrekqnmzyhsqfp",
-        "password": "14b10cbd5fe39afdc2163ef95e652e339a612475f685aa3e14f58faddc5afe05",
-        "host": "ec2-54-157-160-218.compute-1.amazonaws.com",
-        "database": "d1vic9gvi7ejhv"
-    }
-}
