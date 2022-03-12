@@ -4,6 +4,7 @@ import { protect } from '../middleware/authMiddleware';
 import pool from '../config/index';
 import { v4 as uuidv4 } from 'uuid';
 import {getStorage, ref, deleteObject, listAll, getDownloadURL} from 'firebase/storage';
+import { searchForItem } from '../utils/helperFunctions';
 const route = express.Router();
 
 // @desc    Fetch deductions by the budget id
@@ -12,11 +13,22 @@ const route = express.Router();
 route.get('/:id', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
     const {id} = req.params;
     const { username } = (req as any).user;
+    const storage = getStorage();
+    const listRef = ref(storage, `budgets/${id}`);
+
+    const { items } = await listAll(listRef);
+    const images: any = await Promise.all(items.map(async itemRef => {
+        return {
+            url: await getDownloadURL(ref(storage, `budgets/${id}/${itemRef.name}`)),
+            imageName: itemRef.name
+        }
+    }));
 
     const { rows } = await pool.query(`select d.* from "Deduction" d inner join "BudgetUser" bu on bu.budget_id = d.budgets_id 
                                             where budgets_id = $1 and username = $2 order by created_on desc`, [id, username]);
 
-    res.json(rows)
+    res.send(searchForItem(rows, images))
+
 }));
 
 // @desc    Adding a deduction by budget id
