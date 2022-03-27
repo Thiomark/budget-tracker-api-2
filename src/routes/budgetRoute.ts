@@ -14,7 +14,7 @@ router.get('/', protect, asyncHandler(async (req: Request, res:Response, next: N
                                             GROUP BY bgt.id
                                             order by bgt.created_on desc;
                                             `, [username]);
-    res.json(rows)
+    res.json(rows.map(x => ({...x, remaining_amount: Number(x.remaining_amount), budget: Number(x.budget)})))
 }));
 
 router.get('/:id', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
@@ -23,18 +23,21 @@ router.get('/:id', protect, asyncHandler(async (req: Request, res:Response, next
     res.json(budget)
 }));
 
+// @desc    add a budget
+// @route   POST /api/v1/budgets
+// @access  Private
 router.post('/', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
     const { username } = (req as any).user;
-    const { budget, created_on } = req.body;
+    const { budget, created_on, description } = req.body;
 
     if(!budget) throw new Error('Provide a budget');
 
     const id = uuidv4();
 
-    const {rows} = await pool.query('INSERT INTO "Budget" (budget, user_id, id, created_on) values ($1, $2, $3, $4) returning *', [budget, username, id, new Date(created_on).toISOString()]);
+    const {rows: [createdBudget]}: any = await pool.query('INSERT INTO "Budget" (budget, user_id, id, created_on, description) values ($1, $2, $3, $4, $5) returning *', [budget, username, id, new Date(created_on ? created_on : Date.now()).toISOString(), description]);
     await pool.query('INSERT INTO "BudgetUser" (budget_id, username) values ($1, $2)', [id, username]);
 
-    res.json(rows);
+    res.json({...createdBudget, budget: Number(createdBudget.budget)});
 }));
 
 router.post('/add/:id', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
@@ -65,14 +68,18 @@ router.delete('/:id', protect, asyncHandler(async (req: Request, res:Response, n
     res.json({success: true});
 }));
 
+// @desc    update a budget
+// @route   POST /api/v1/budgets/:id
+// @access  Private
+
 router.post('/:id', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
-    const { budget } = req.body;
+    const { budget, description, created_on } = req.body;
     const { id } = req.params;
 
     if(!budget) throw new Error('Provide a budget');
 
-    const {rows} = await pool.query('UPDATE "Budget" SET budget = $1 WHERE id = $2 returning *', [budget, id]);
-    res.json(rows);
+    const {rows: [updatedBudget]}: any = await pool.query('UPDATE "Budget" SET budget = $1, description = $2, created_on = $3 WHERE id = $4 returning *', [budget, description, new Date(created_on).toISOString(), id]);
+    res.json({...updatedBudget, budget: Number(updatedBudget.budget)});
 }));
 
 export default router;

@@ -53,7 +53,7 @@ route.get('/:id', protect, asyncHandler(async (req: Request, res:Response, next:
     const { rows } = await pool.query(`select d.* from "Deduction" d inner join "BudgetUser" bu on bu.budget_id = d.budgets_id 
                                             where budgets_id = $1 and username = $2 order by created_on desc`, [id, username]);
 
-    res.send(searchForItem(rows, images))
+    res.send(searchForItem(rows.map(x => ({...x, amount: Number(x.amount)})), images))
 
 }));
 

@@ -58,7 +58,7 @@ route.get('/:id', authMiddleware_1.protect, (0, express_async_handler_1.default)
     })));
     const { rows } = yield index_1.default.query(`select d.* from "Deduction" d inner join "BudgetUser" bu on bu.budget_id = d.budgets_id 
                                             where budgets_id = $1 and username = $2 order by created_on desc`, [id, username]);
-    res.send((0, helperFunctions_1.searchForItem)(rows, images));
+    res.send((0, helperFunctions_1.searchForItem)(rows.map(x => (Object.assign(Object.assign({}, x), { amount: Number(x.amount) }))), images));
 })));
 // @desc    Adding a deduction by budget id
 // @route   POST /api/v1/deductions/:id

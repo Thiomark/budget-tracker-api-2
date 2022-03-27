@@ -16,6 +16,8 @@ const config_1 = __importDefault(require("./src/config"));
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
         yield config_1.default.query(`
+    ALTER TABLE "Budget" ALTER COLUMN budget TYPE numeric;
+    ALTER TABLE "Deduction" ALTER COLUMN amount TYPE numeric;
     
     `).then(x => {
             console.log('x.rows');
