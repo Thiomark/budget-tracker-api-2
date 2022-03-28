@@ -79,7 +79,7 @@ route.post('/:id', authMiddleware_1.protect, (0, express_async_handler_1.default
         const storage = (0, storage_1.getStorage)();
         image = yield (0, storage_1.getDownloadURL)((0, storage_1.ref)(storage, `budgets/${id}/${image}`));
     }
-    res.json(Object.assign(Object.assign({}, newDeduction), { image }));
+    res.json(Object.assign(Object.assign({}, newDeduction), { image, amount: Number(newDeduction.amount) }));
 })));
 // @desc    Editing a deduction by budget-id and deduction-id
 // @route   POST /api/v1/deductions/:id
@@ -95,7 +95,7 @@ route.post('/:budgetID/:id', authMiddleware_1.protect, (0, express_async_handler
         throw new Error('You do not have permission to do that');
     const { rows: [deduction] } = yield index_1.default.query(`UPDATE "Deduction" SET amount = $1, description = $2, tags = $3, created_on = $4 
                                                     WHERE id = $5 returning *`, [amount, description, tags, new Date(created_on).toISOString(), id]);
-    res.json(deduction);
+    res.json(Object.assign(Object.assign({}, deduction), { amount: Number(deduction.amount) }));
 })));
 // @desc    deleting a deductions by the budget-id and deduction-id
 // @route   GET /api/v1/deductions/:budgetID/:id

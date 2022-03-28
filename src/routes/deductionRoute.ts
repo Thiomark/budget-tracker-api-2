@@ -79,7 +79,8 @@ route.post('/:id', protect, asyncHandler(async (req: Request, res:Response, next
         const storage = getStorage();
         image = await getDownloadURL(ref(storage, `budgets/${id}/${image}`))
     }
-    res.json({...newDeduction, image })
+
+    res.json({...newDeduction, image, amount: Number(newDeduction.amount) });
 }));
 
 
@@ -99,7 +100,7 @@ route.post('/:budgetID/:id', protect, asyncHandler(async (req: Request, res:Resp
     const {rows: [deduction]} = await pool.query(`UPDATE "Deduction" SET amount = $1, description = $2, tags = $3, created_on = $4 
                                                     WHERE id = $5 returning *`, [amount, description, tags, new Date(created_on).toISOString(), id]);
 
-    res.json(deduction);
+    res.json({...deduction, amount: Number(deduction.amount)});
 }));
 
 

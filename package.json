@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "busboy": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
+    "expo": "^44.0.6",
     "express": "^4.17.2",
     "express-async-handler": "^1.2.0",
     "firebase": "^9.6.8",
