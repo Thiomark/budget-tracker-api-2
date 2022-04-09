@@ -66,15 +66,15 @@ route.get('/:id', authMiddleware_1.protect, (0, express_async_handler_1.default)
 route.post('/:id', authMiddleware_1.protect, (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { username } = req.user;
-    let { amount, description, image, tags, created_on } = req.body;
+    let { amount, description, image, tags, created_on, divide_by } = req.body;
     if (!amount)
         throw new Error('Provide an amount deducted');
     const { rows: [record] } = yield index_1.default.query(`select * from "BudgetUser" bu where bu.budget_id = $1 and username = $2`, [id, username]);
     if (!record)
         throw new Error('You do not have permission to do that');
     const newID = (0, uuid_1.v4)();
-    const { rows: [newDeduction] } = yield index_1.default.query(`insert into "Deduction" (amount, description, image, tags, id, budgets_id, created_on)
-                                                        values ($1, $2, $3, $4, $5, $6, $7) returning *`, [amount, description, image, tags, newID, id, new Date(created_on).toISOString()]);
+    const { rows: [newDeduction] } = yield index_1.default.query(`insert into "Deduction" (amount, description, image, tags, id, budgets_id, created_on, divide_by)
+                                                        values ($1, $2, $3, $4, $5, $6, $7, $8) returning *`, [amount, description, image, tags, newID, id, new Date(created_on).toISOString(), divide_by]);
     if (image) {
         const storage = (0, storage_1.getStorage)();
         image = yield (0, storage_1.getDownloadURL)((0, storage_1.ref)(storage, `budgets/${id}/${image}`));
@@ -87,14 +87,14 @@ route.post('/:id', authMiddleware_1.protect, (0, express_async_handler_1.default
 route.post('/:budgetID/:id', authMiddleware_1.protect, (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { budgetID, id } = req.params;
     const { username } = req.user;
-    const { amount, description, tags, created_on } = req.body;
+    const { amount, description, tags, created_on, divide_by } = req.body;
     if (!amount)
         throw new Error('Provide an amount deducted');
     const { rows: [record] } = yield index_1.default.query(`select * from "BudgetUser" bu where bu.budget_id = $1 and username = $2`, [budgetID, username]);
     if (!record)
         throw new Error('You do not have permission to do that');
-    const { rows: [deduction] } = yield index_1.default.query(`UPDATE "Deduction" SET amount = $1, description = $2, tags = $3, created_on = $4 
-                                                    WHERE id = $5 returning *`, [amount, description, tags, new Date(created_on).toISOString(), id]);
+    const { rows: [deduction] } = yield index_1.default.query(`UPDATE "Deduction" SET amount = $1 description = $2, tags = $3, created_on = $4, divide_by = $5 
+                                                    WHERE id = $6 returning *`, [amount, description, tags, new Date(created_on).toISOString(), divide_by, id]);
     res.json(Object.assign(Object.assign({}, deduction), { amount: Number(deduction.amount) }));
 })));
 // @desc    deleting a deductions by the budget-id and deduction-id
