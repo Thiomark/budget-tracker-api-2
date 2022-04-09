@@ -17,7 +17,8 @@ route.post('/register', asyncHandler(async (req: Request, res:Response, next: Ne
     const {rows: [newUser]} = await pool.query('insert into "User" (username, password, name) values ($1, $2, $3) returning username, name, created_on', [email, hashedPassword, name]);
 
     res.status(201).json({
-        token: generateToken(newUser.username)
+        token: generateToken(newUser.username),
+        username: newUser.username
     })
 }));
 
@@ -32,7 +33,8 @@ route.post('/login', asyncHandler(async (req: Request, res:Response, next: NextF
     if(!checkPassword) throw new Error('invalid credentials');
 
     res.status(201).json({
-        token: generateToken(user.username)
+        token: generateToken(user.username),
+        username: user.username
     })
 }));
 

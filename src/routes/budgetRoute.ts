@@ -28,13 +28,13 @@ router.get('/:id', protect, asyncHandler(async (req: Request, res:Response, next
 // @access  Private
 router.post('/', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
     const { username } = (req as any).user;
-    const { budget, created_on, description } = req.body;
+    const { budget, created_on, description, divide_by } = req.body;
 
     if(!budget) throw new Error('Provide a budget');
 
     const id = uuidv4();
 
-    const {rows: [createdBudget]}: any = await pool.query('INSERT INTO "Budget" (budget, user_id, id, created_on, description) values ($1, $2, $3, $4, $5) returning *', [budget, username, id, new Date(created_on ? created_on : Date.now()).toISOString(), description]);
+    const {rows: [createdBudget]}: any = await pool.query('INSERT INTO "Budget" (budget, user_id, id, created_on, description, divide_by) values ($1, $2, $3, $4, $5, $6) returning *', [budget, username, id, new Date(created_on ? created_on : Date.now()).toISOString(), description, divide_by]);
     await pool.query('INSERT INTO "BudgetUser" (budget_id, username) values ($1, $2)', [id, username]);
 
     res.json({...createdBudget, budget: Number(createdBudget.budget)});
@@ -73,12 +73,12 @@ router.delete('/:id', protect, asyncHandler(async (req: Request, res:Response, n
 // @access  Private
 
 router.post('/:id', protect, asyncHandler(async (req: Request, res:Response, next: NextFunction) => {
-    const { budget, description, created_on } = req.body;
+    const { budget, description, created_on, divide_by } = req.body;
     const { id } = req.params;
 
     if(!budget) throw new Error('Provide a budget');
 
-    const {rows: [updatedBudget]}: any = await pool.query('UPDATE "Budget" SET budget = $1, description = $2, created_on = $3 WHERE id = $4 returning *', [budget, description, new Date(created_on).toISOString(), id]);
+    const {rows: [updatedBudget]}: any = await pool.query('UPDATE "Budget" SET budget = $1, description = $2, created_on = $3, divide_by = $4 WHERE id = $5 returning *', [budget, description, new Date(created_on).toISOString(), divide_by, id]);
     res.json({...updatedBudget, budget: Number(updatedBudget.budget)});
 }));
 
